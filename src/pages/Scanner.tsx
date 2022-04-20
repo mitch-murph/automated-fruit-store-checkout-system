@@ -5,10 +5,10 @@ import { ItemList } from "../components";
 
 export function Scanner() {
   return <Grid container>
-    <Grid item sx={{ margin: '36px', paddingRight: '36px' }} >
-      <Webcam width='1024px' videoConstraints={{ width: 1920, height: 1080 }} />
+    <Grid item xs={8} sx={{ padding: '36px' }}>
+      <Webcam width='100%' videoConstraints={{ width: 1920, height: 1080 }} />
     </Grid>
-    <Grid item >
+    <Grid item xs={4} sx={{ paddingLeft: '36px' }}>
       <ItemList />
     </Grid>
   </Grid >;

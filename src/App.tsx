@@ -9,7 +9,6 @@ function App() {
     <BrowserRouter>
       <Navigation />
       <Routes>
-        {/* <Route path="/" element={<App />} /> */}
         <Route path="/" element={<Scanner />} />
         <Route path="/about" element={<AboutUs />} />
       </Routes>

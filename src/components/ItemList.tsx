@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Stack, Typography, Grid } from "@mui/material";
-import { Counter } from '../components'
+import { Box, Stack, Typography, Grid, Button } from "@mui/material";
+import { Counter, Total } from '../components'
 import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
 const textStyles = {
@@ -36,7 +36,7 @@ const items = ['Nutrigrain', 'Chocolate', 'Potato', 'Milk', 'Apple', 'Nutrigrain
 export function ItemList() {
   const { height } = useWindowDimensions();
 
-  const listHeight = height - 200
+  const listHeight = (height ?? 0) - 315
 
   return <>
     <Stack sx={{
@@ -47,20 +47,6 @@ export function ItemList() {
         return <Item label={item} index={index} />
       })}
     </Stack>
-    <Box sx={{
-      background: '#FFFFFF',
-      borderRadius: '0px',
-      position: "fixed",
-      bottom: 2
-    }}>
-
-      <Typography sx={{
-        weight: '400',
-        fontSize: '36px',
-        margin: '36px',
-      }}>
-        Total: $35.50
-      </Typography>
-    </Box>
+    <Total />
   </>;
 }

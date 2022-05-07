@@ -5,8 +5,9 @@ import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
 const textStyles = {
   weight: '400',
-  fontSize: '36px',
+  fontSize: '20px',
   margin: '36px',
+  marginRight: '0px',
   color: '#000000',
   display: 'flex',
   alignItems: 'center',

@@ -12,7 +12,7 @@ import { Close } from "@mui/icons-material";
 import styled from "styled-components";
 import { useStateMachine } from "little-state-machine";
 import defaultState from "../state/defaultState";
-import { updateItems } from "../state/actions";
+import { updateItems, resetState } from "../state/actions";
 
 const Image = styled.img`
   width: 100px;
@@ -226,7 +226,7 @@ function Step(props) {
 }
 
 export function Payment({ open, setOpen }) {
-  const { state, actions } = useStateMachine({ updateItems });
+  const { state, actions } = useStateMachine({ updateItems, resetState });
   const [step, setStep] = useState("type");
   const [enter, setEnter] = useState(state.total);
 
@@ -238,7 +238,7 @@ export function Payment({ open, setOpen }) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleComplete = () => {
-    actions.updateItems(defaultState);
+    actions.resetState(defaultState);
     handleClose();
   };
   const closeDialog = () => {

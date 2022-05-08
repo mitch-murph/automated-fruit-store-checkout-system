@@ -8,7 +8,7 @@ export function Scanner() {
       {/* <ModeSwitch /> */}
       <Camera/>
     </Grid>
-    <Grid item xs={4} sx={{ paddingLeft: '36px' }}>
+    <Grid item xs={4} >
       <ItemList />
     </Grid>
   </Grid >;

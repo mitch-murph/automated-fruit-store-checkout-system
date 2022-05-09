@@ -112,17 +112,35 @@ export function Camera() {
       Tracker.updateTrackedItemsWithNewFrame(...trackerArgs);
       const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
       console.log("trackerDataForThisFrame:", trackerDataForThisFrame);
-
-      predictions.forEach((detection) => {
-        const prediction = detection.bbox;
+      
+      trackerDataForThisFrame.forEach((prediction) => {
 
         ctx.beginPath();
-        ctx.rect(prediction[0], prediction[1], prediction[2], prediction[3]);
+        ctx.rect(prediction.x, prediction.y, prediction.w, prediction.h);
         ctx.strokeStyle = "#FF0000";
+
+
+        ctx.font = "48px Arial";
+        ctx.fillStyle = "red";
+        ctx.textAlign = "center";
+        ctx.fillText(`${prediction.name} #${prediction.id}`, prediction.x + 125, prediction.y - 10);
 
         ctx.lineWidth = 3;
         ctx.stroke();
       });
+
+
+
+      // predictions.forEach((detection) => {
+      //   const prediction = detection.bbox;
+
+      //   ctx.beginPath();
+      //   ctx.rect(prediction[0], prediction[1], prediction[2], prediction[3]);
+      //   ctx.strokeStyle = "#FF0000";
+
+      //   ctx.lineWidth = 3;
+      //   ctx.stroke();
+      // });
     } catch (err) {
       console.error(err);
     }

@@ -29,7 +29,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "react-scripts build && npm run push",
-    "push": "aws s3 rm s3://automated-fruit-store-checkout-system/ --recursive && aws s3 cp ./build s3://automated-fruit-store-checkout-system/ --recursive --acl public-read"
+    "push": "aws s3 rm s3://automated-fruit-store-checkout-system/ --recursive && aws s3 cp ./build s3://automated-fruit-store-checkout-system/ --recursive --acl public-read",
+    "push2": "aws s3 rm s3://automated-fruit-store-checkout-system-2/ --recursive && aws s3 cp ./build s3://automated-fruit-store-checkout-system-2/ --recursive --acl public-read"
   },
   "eslintConfig": {
     "extends": [

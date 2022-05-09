@@ -62,8 +62,8 @@ export function Camera() {
   async function loadModel() {
     try {
       console.log("loading model");
-      const model2 = await tf.loadGraphModel("/best_web_model/model.json");
-      // const model2 = await cocoSsd.load();
+      // const model2 = await tf.loadGraphModel("/best_web_model/model.json");
+      const model2 = await cocoSsd.load();
       setModel(model2);
       console.log("loaded model");
     } catch (e) {
@@ -75,68 +75,71 @@ export function Camera() {
 
   async function predictionFunction() {
     try {
-      const input = await tf.tidy(() => {
-        const img = tf.browser.fromPixels(document.getElementById("img"))
-          .resizeNearestNeighbor([640, 640])
-          .toFloat()
-          .expandDims();
-        return img;
-        // return img.expandDims(0)
-      });
+      const predictions = await model.detect(document.getElementById("img"));
+      console.log(predictions);
 
-      const predictions = await model.executeAsync(input);
-      const data = predictions.map((p) => p.arraySync()); // you can also use arraySync or their equivalents async methods
-      console.log("Predictions: ", data);
-      // console.log(predictions);
-      // var cnvs = document.getElementById("canvas");
-      // var ctx = cnvs.getContext("2d");
-      // ctx.clearRect(0, 0, 1920, 1080);
-
-      // const trackerArgs = [
-      //   predictions.map((prediction) => {
-      //     return {
-      //       x: prediction.bbox[0],
-      //       y: prediction.bbox[1],
-      //       w: prediction.bbox[2],
-      //       h: prediction.bbox[3],
-      //       confidence: prediction.score * 100,
-      //       name: prediction.class,
-      //     };
-      //   }),
-      //   frameCount++,
-      // ];
-      // console.log(trackerArgs);
-      // Tracker.updateTrackedItemsWithNewFrame(...trackerArgs);
-      // const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
-      // console.log("trackerDataForThisFrame:", trackerDataForThisFrame);
-
-      // predictions.forEach((detection) => {
-      //   const prediction = detection.bbox;
-
-      //   ctx.beginPath();
-      //   ctx.rect(prediction[0], prediction[1], prediction[2], prediction[3]);
-      //   ctx.strokeStyle = "#FF0000";
-
-      //   ctx.lineWidth = 3;
-      //   ctx.stroke();
+      // const input = await tf.tidy(() => {
+      //   const img = tf.browser.fromPixels(document.getElementById("img"))
+      //     .resizeNearestNeighbor([640, 640])
+      //     .toFloat()
+      //     .expandDims();
+      //   return img;
+      //   // return img.expandDims(0)
       // });
+
+      // const predictions = await model.executeAsync(input);
+      // const data = predictions.map((p) => p.arraySync()); // you can also use arraySync or their equivalents async methods
+      // console.log("Predictions: ", data);
+      // console.log(predictions);
+      var cnvs = document.getElementById("canvas");
+      var ctx = cnvs.getContext("2d");
+      ctx.clearRect(0, 0, 1920, 1080);
+
+      const trackerArgs = [
+        predictions.map((prediction) => {
+          return {
+            x: prediction.bbox[0],
+            y: prediction.bbox[1],
+            w: prediction.bbox[2],
+            h: prediction.bbox[3],
+            confidence: prediction.score * 100,
+            name: prediction.class,
+          };
+        }),
+        frameCount++,
+      ];
+      console.log(trackerArgs);
+      Tracker.updateTrackedItemsWithNewFrame(...trackerArgs);
+      const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
+      console.log("trackerDataForThisFrame:", trackerDataForThisFrame);
+
+      predictions.forEach((detection) => {
+        const prediction = detection.bbox;
+
+        ctx.beginPath();
+        ctx.rect(prediction[0], prediction[1], prediction[2], prediction[3]);
+        ctx.strokeStyle = "#FF0000";
+
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      });
     } catch (err) {
       console.error(err);
     }
     setTimeout(() => predictionFunction(), 500);
   }
 
-  // useEffect(() => {
-  //   console.log("useEffect");
-  //   if (!model) {
-  //     tf.ready().then(async () => {
-  //       await loadModel();
-  //     });
-  //   } else {
-  //     console.log("predictionFunction");
-  //     predictionFunction();
-  //   }
-  // }, [model]);
+  useEffect(() => {
+    console.log("useEffect");
+    if (!model) {
+      tf.ready().then(async () => {
+        await loadModel();
+      });
+    } else {
+      console.log("predictionFunction");
+      predictionFunction();
+    }
+  }, [model]);
 
   return (
     <OutsideWrapper>

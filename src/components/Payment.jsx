@@ -64,7 +64,7 @@ function ScanCard({ setStep }) {
         setStep("transfer");
       }}
     >
-      Scan Cad at EftPos Machine
+      Scan Card at EftPos Machine
     </Button>
   );
 }

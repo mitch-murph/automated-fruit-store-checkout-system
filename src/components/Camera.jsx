@@ -4,6 +4,7 @@ import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import styled from "styled-components";
 import { Tracker } from "node-moving-things-tracker";
+import { predict } from "../util/yolo-predict";
 // const Tracker = require("node-moving-things-tracker").Tracker;
 
 const Canvas = styled.canvas`
@@ -62,7 +63,7 @@ export function Camera() {
   async function loadModel() {
     try {
       console.log("loading model");
-      const model2 = await tf.loadGraphModel("/best_web_model/model.json");
+      const model2 = await tf.loadGraphModel("/web_model_yolo/model.json");
       // const model2 = await cocoSsd.load();
       setModel(model2);
       console.log("loaded model");
@@ -77,20 +78,28 @@ export function Camera() {
     try {
       // const predictions = await model.detect(document.getElementById("img"));
       // console.log(predictions);
+      var cnvs = document.getElementById("canvas");
+      let [modelWidth, modelHeight] = model.inputs[0].shape.slice(
+        1,
+        3
+      );
 
       const input = await tf.tidy(() => {
         const img = tf.browser.fromPixels(document.getElementById("img"))
           .resizeNearestNeighbor([640, 640])
-          .toFloat()
+          .div(255.0)
           .expandDims();
         return img;
         // return img.expandDims(0)
       });
 
-      const predictions = await model.executeAsync(input);
-      const data = predictions.map((p) => p.arraySync()); // you can also use arraySync or their equivalents async methods
-      console.log("Predictions: ", data);
-      console.log(predictions);
+      model.executeAsync(input).then((res) => predict(res, cnvs));
+
+      // const predictions = await model.executeAsync(input);
+      // const data = predictions.map((p) => p.arraySync()); // you can also use arraySync or their equivalents async methods
+      // console.log("Predictions: ", data);
+      // console.log(predictions);
+
       // var cnvs = document.getElementById("canvas");
       // var ctx = cnvs.getContext("2d");
       // ctx.clearRect(0, 0, 1920, 1080);
@@ -112,13 +121,12 @@ export function Camera() {
       // Tracker.updateTrackedItemsWithNewFrame(...trackerArgs);
       // const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
       // console.log("trackerDataForThisFrame:", trackerDataForThisFrame);
-      
+
       // trackerDataForThisFrame.forEach((prediction) => {
 
       //   ctx.beginPath();
       //   ctx.rect(prediction.x, prediction.y, prediction.w, prediction.h);
       //   ctx.strokeStyle = "#FF0000";
-
 
       //   ctx.font = "48px Arial";
       //   ctx.fillStyle = "red";

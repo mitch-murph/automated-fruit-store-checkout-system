@@ -7,6 +7,8 @@ import { Navigation } from './components'
 import defaultState from './state/defaultState'
 import { cloneDeep } from "lodash";
 
+sessionStorage.clear();
+
 createStore(cloneDeep(defaultState));
 
 function App() {

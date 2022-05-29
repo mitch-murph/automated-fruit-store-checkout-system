@@ -101,68 +101,64 @@ export const names = [
   },
 ]
 
-export function predict(res, c) {
-  var ctx = c.getContext("2d");
-  const font = "16px sans-serif";
-  ctx.font = font;
-  ctx.textBaseline = "top";
-  ctx.clearRect(0, 0, 1920, 1080);
-
-
+export function readPredictions(res, width, height) {
   const [boxes, scores, classes, valid_detections] = res;
-  const boxes_data = boxes.dataSync();
+  const boxes_data = boxes.arraySync()[0];
   const scores_data = scores.dataSync();
   const classes_data = classes.dataSync();
   const valid_detections_data = valid_detections.dataSync()[0];
 
+  let predictions = Array.from(Array(valid_detections_data).keys()).map(index => {
+    let [x, y, x2, y2] = boxes_data[index];
+    x *= width;
+    x2 *= width;
+    y *= height;
+    y2 *= height;
 
-  tf.dispose(res)
-
-  var i;
-  for (i = 0; i < valid_detections_data; ++i) {
-    let [x1, y1, x2, y2] = boxes_data.slice(i * 4, (i + 1) * 4);
-    x1 *= c.width;
-    x2 *= c.width;
-    y1 *= c.height;
-    y2 *= c.height;
-    const width = x2 - x1;
-    const height = y2 - y1;
-    console.log(classes_data[i])
-    const klass = names[classes_data[i]].name;
-    const klass_colour = names[classes_data[i]].color;
-    const score = scores_data[i].toFixed(2);
-
-    if (score < 0.50){
-      continue;
+    const w = x2 - x;
+    const h = y2 - y;
+    return {
+      x,
+      y,
+      w,
+      h,
+      confidence: scores_data[index],
+      name: classes_data[index]
     }
+  })
 
-    // Draw the bounding box.
-    ctx.strokeStyle = klass_colour;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(x1, y1, width, height);
+  tf.dispose(res);
 
-    // Draw the label background.
-    ctx.fillStyle = klass_colour;
-    const textWidth = ctx.measureText(klass + ":" + score).width;
-    const textHeight = parseInt(font, 10); // base 10
-    ctx.fillRect(x1, y1, textWidth + 4, textHeight + 4);
+  return predictions;
+}
 
-  }
-  for (i = 0; i < valid_detections_data; ++i) {
-    let [x1, y1, ,] = boxes_data.slice(i * 4, (i + 1) * 4);
-    x1 *= c.width;
-    y1 *= c.height;
-    const klass = names[classes_data[i]].name;
-    const score = scores_data[i].toFixed(2);
+export function drawPredictions(c, predictions) {
+  var ctx = c.getContext("2d");
+  const font = "24px sans-serif";
+  ctx.font = font;
+  ctx.textBaseline = "top";
+  ctx.clearRect(0, 0, 1920, 1080);
 
-    if (score < 0.50){
-      continue;
+  predictions.forEach((prediction) => {
+    const { id, x, y, w, h, name, confidence } = prediction;
+
+    const label = names[name].name;
+    const label_colour = names[name].color;
+    const score = confidence.toFixed(2);
+    const label_text = `#${id} ${label} : ${score}`
+
+    if (score > 0.50) {
+      ctx.strokeStyle = label_colour;
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x, y, w, h);
+
+      ctx.fillStyle = label_colour;
+      const textWidth = ctx.measureText(label_text).width;
+      const textHeight = parseInt(font, 10); // base 10
+      ctx.fillRect(x, y, textWidth + 4, textHeight + 4);
+
+      ctx.fillStyle = "#000000";
+      ctx.fillText(label_text, x, y);
     }
-
-    // Draw the text last to ensure it's on top.
-    ctx.fillStyle = "#000000";
-    ctx.fillText(klass + ":" + score, x1, y1);
-
-  }
-
+  })
 }

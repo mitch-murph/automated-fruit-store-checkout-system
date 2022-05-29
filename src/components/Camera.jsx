@@ -4,8 +4,9 @@ import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import * as tf from "@tensorflow/tfjs";
 import styled from "styled-components";
 import { Tracker } from "node-moving-things-tracker";
-import { predict } from "../util/yolo-predict";
-// const Tracker = require("node-moving-things-tracker").Tracker;
+import { readPredictions, drawPredictions } from "../util/yolo-predict";
+import { useStateMachine } from "little-state-machine";
+import { updateItems } from "../state/actions";
 
 const Canvas = styled.canvas`
   width: 100%;
@@ -13,20 +14,9 @@ const Canvas = styled.canvas`
   position: absolute;
   top: 0px;
   left: 0px;
-  /* background-color: rgba(255, 0, 0, 0.1); */
 `;
 
-// const StyledCamera = styled.Webcam`
-//   width: 100%;
-//   height: 100%;
-//   position: absolute;
-//   top: 0px;
-//   left: 0px;
-// `;
-
 const InsideWrapper = styled.div`
-  /* width: 100%;
-  height: 100%; */
   position: relative;
 `;
 
@@ -37,109 +27,82 @@ const OutsideWrapper = styled.div`
   border: 1px solid blue; */
 `;
 
-// Tracker.updateTrackedItemsWithNewFrame(detectionScaledOfThisFrame, currentFrame);
-
-// const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
-
-// [
-//   {
-//       "bbox": [
-//           487.41811752319336,
-//           456.9097566604614,
-//           992.1260261535645,
-//           616.6176652908325
-//       ],
-//       "class": "person",
-//       "score": 0.9017928838729858
-//   }
-// ]
-
-// {"x":1799,"y":250,"w":54,"h":33,"confidence":33,"name":"car"}
+var uniqueCount = -1;
 
 export function Camera() {
+  const { state, actions } = useStateMachine({ updateItems });
   const [model, setModel] = useState(undefined);
   let frameCount = 0;
 
   async function loadModel() {
     try {
       console.log("loading model");
-      const model2 = await tf.loadGraphModel("/web_model_yolo_400ep_aug/model.json");
-      // const model2 = await cocoSsd.load();
-      setModel(model2);
+      const loadModel = await tf.loadGraphModel(
+        "/web_model_yolo_400ep_aug/model.json"
+      );
+      setModel(loadModel);
       console.log("loaded model");
     } catch (e) {
       console.log("error loading model");
-      console.log(e);
+      throw e;
     }
     return;
   }
 
   async function predictionFunction() {
     try {
-      // const predictions = await model.detect(document.getElementById("img"));
-      // console.log(predictions);
       var cnvs = document.getElementById("canvas");
-      let [modelWidth, modelHeight] = model.inputs[0].shape.slice(
-        1,
-        3
-      );
 
       const input = await tf.tidy(() => {
-        const img = tf.browser.fromPixels(document.getElementById("img"))
+        const img = tf.browser
+          .fromPixels(document.getElementById("img"))
           .resizeNearestNeighbor([640, 640])
           .div(255.0)
           .expandDims();
         return img;
-        // return img.expandDims(0)
       });
 
-      model.executeAsync(input).then((res) => predict(res, cnvs));
+      const tfPredictions = await model.executeAsync(input);
+      const predictions = readPredictions(
+        tfPredictions,
+        cnvs.width,
+        cnvs.height
+      );
 
-      // const predictions = await model.executeAsync(input);
-      // const data = predictions.map((p) => p.arraySync()); // you can also use arraySync or their equivalents async methods
-      // console.log("Predictions: ", data);
-      // console.log(predictions);
+      Tracker.updateTrackedItemsWithNewFrame(predictions, frameCount++);
+      const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
+      const newUniqueItems = detectNewUniqueItem(trackerDataForThisFrame);
 
-      // var cnvs = document.getElementById("canvas");
-      // var ctx = cnvs.getContext("2d");
-      // ctx.clearRect(0, 0, 1920, 1080);
+      if (newUniqueItems.length) {
+        newUniqueItems.forEach((id) => {
+          state.items[id].units++;
+        });
+        console.log(newUniqueItems);
+          actions.updateItems(state, state.items)
+      }
 
-      // const trackerArgs = [
-      //   predictions.map((prediction) => {
-      //     return {
-      //       x: prediction.bbox[0],
-      //       y: prediction.bbox[1],
-      //       w: prediction.bbox[2],
-      //       h: prediction.bbox[3],
-      //       confidence: prediction.score * 100,
-      //       name: prediction.class,
-      //     };
-      //   }),
-      //   frameCount++,
-      // ];
-      // console.log(trackerArgs);
-      // Tracker.updateTrackedItemsWithNewFrame(...trackerArgs);
-      // const trackerDataForThisFrame = Tracker.getJSONOfTrackedItems();
-      // console.log("trackerDataForThisFrame:", trackerDataForThisFrame);
-
-      // trackerDataForThisFrame.forEach((prediction) => {
-
-      //   ctx.beginPath();
-      //   ctx.rect(prediction.x, prediction.y, prediction.w, prediction.h);
-      //   ctx.strokeStyle = "#FF0000";
-
-      //   ctx.font = "48px Arial";
-      //   ctx.fillStyle = "red";
-      //   ctx.textAlign = "center";
-      //   ctx.fillText(`${prediction.name} #${prediction.id}`, prediction.x + 125, prediction.y - 10);
-
-      //   ctx.lineWidth = 3;
-      //   ctx.stroke();
-      // });
+      drawPredictions(cnvs, trackerDataForThisFrame);
     } catch (err) {
       console.error(err);
     }
     setTimeout(() => predictionFunction(), 500);
+  }
+
+  function detectNewUniqueItem(predictions) {
+    let newUniqueItems = [];
+    let max = -1;
+    predictions.forEach((prediction) => {
+      if (uniqueCount < prediction.id) {
+        console.log(`${prediction.id} is new`);
+        newUniqueItems.push(prediction.name);
+        max = prediction.id;
+      }
+    });
+    if (uniqueCount < max) {
+      uniqueCount = max;
+    }
+
+    return newUniqueItems;
   }
 
   useEffect(() => {

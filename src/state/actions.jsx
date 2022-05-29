@@ -1,6 +1,8 @@
 import { cloneDeep } from "lodash";
 
 export function updateItems(state, payload) {
+  console.log(payload)
+
   const total = payload.items.reduce(
     (prev, item) => item.price * item.units + prev,
     0

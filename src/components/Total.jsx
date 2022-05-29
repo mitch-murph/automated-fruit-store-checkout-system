@@ -12,12 +12,12 @@ const Wrapper = styled.div`
   /* height: 300px; */
 `;
 
-export function Total({ total }) {
+export function Total({ total, itemState, setItemState }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Wrapper>
-      <Payment {...{ open, setOpen }} />
+      <Payment {...{ open, setOpen, itemState, setItemState }} />
       <Box
         sx={{
           borderRadius: "0px",

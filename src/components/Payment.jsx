@@ -10,9 +10,8 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import styled from "styled-components";
-import { useStateMachine } from "little-state-machine";
 import defaultState from "../state/defaultState";
-import { updateItems, resetState } from "../state/actions";
+import { cloneDeep } from "lodash";
 
 const Image = styled.img`
   width: 100px;
@@ -225,20 +224,19 @@ function Step(props) {
   return <PaymentOption {...props} />;
 }
 
-export function Payment({ open, setOpen }) {
-  const { state, actions } = useStateMachine({ updateItems, resetState });
+export function Payment({ open, setOpen, itemState, setItemState }) {
   const [step, setStep] = useState("type");
-  const [enter, setEnter] = useState(state.total);
+  const [enter, setEnter] = useState(itemState.total);
 
   useEffect(() => {
     setStep("type");
-    setEnter(state.total);
+    setEnter(itemState.total);
   }, [open]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleComplete = () => {
-    actions.resetState(defaultState);
+    setItemState(cloneDeep({ ...defaultState }));
     handleClose();
   };
   const closeDialog = () => {
@@ -263,12 +261,12 @@ export function Payment({ open, setOpen }) {
           <IconButton onClick={closeDialog}>
             <Close /> Close
           </IconButton>
-          <IconButton>Total: ${state.total.toFixed(2)}</IconButton>
+          <IconButton>Total: ${itemState.total.toFixed(2)}</IconButton>
         </Grid>
         <Box sx={{ padding: "18px" }} justify="center">
           <Step
             {...{ step, setStep, enter, setEnter, handleComplete }}
-            total={state.total}
+            total={itemState.total}
           />
         </Box>
       </Box>

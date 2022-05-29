@@ -2,7 +2,6 @@ import React from "react";
 import { Box, Stack, Typography, Grid, Button } from "@mui/material";
 import { Counter, Total } from ".";
 import { useWindowDimensions } from "../hooks/useWindowDimensions";
-import { useStateMachine } from "little-state-machine";
 import { updateItems } from "../state/actions";
 
 const textStyles = {
@@ -47,9 +46,10 @@ const Item = ({ onChange, label, index, price, units }) => {
   );
 };
 
-export function ItemList() {
+export function ItemList({ itemState, setItemState }) {
   const { height } = useWindowDimensions();
-  const { state, actions } = useStateMachine({ updateItems });
+
+  console.log(itemState)
 
   const listHeight = (height ?? 0) - 300;
   return (
@@ -60,7 +60,7 @@ export function ItemList() {
           height: listHeight,
         }}
       >
-        {state.items.map((item, index) => {
+        {itemState.items.map((item, index) => {
           return (
             <Item
               key={index}
@@ -69,15 +69,20 @@ export function ItemList() {
               price={item.price * item.units}
               units={item.units}
               onChange={(value, index) => {
-                let curr = state.items[index];
-                curr.units = value;
-                actions.updateItems(state, [...state.items, curr]);
+                itemState.items[index].units = value;
+
+                itemState.total = itemState.items.reduce(
+                  (prev, item) => item.price * item.units + prev,
+                  0
+                );
+
+                setItemState({ ...itemState });
               }}
             />
           );
         })}
       </Stack>
-      <Total total={state.total} />
+      <Total total={itemState.total} {...{ itemState, setItemState }} />
     </>
   );
 }

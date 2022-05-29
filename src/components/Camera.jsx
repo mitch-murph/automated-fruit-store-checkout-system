@@ -63,7 +63,7 @@ export function Camera() {
   async function loadModel() {
     try {
       console.log("loading model");
-      const model2 = await tf.loadGraphModel("/web_model_yolo/model.json");
+      const model2 = await tf.loadGraphModel("/web_model_yolo_400ep_aug/model.json");
       // const model2 = await cocoSsd.load();
       setModel(model2);
       console.log("loaded model");

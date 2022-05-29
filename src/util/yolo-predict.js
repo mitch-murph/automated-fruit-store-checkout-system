@@ -132,9 +132,9 @@ export function predict(res, c) {
     const klass_colour = names[classes_data[i]].color;
     const score = scores_data[i].toFixed(2);
 
-    // if (score < 0.80){
-    //   continue;
-    // }
+    if (score < 0.50){
+      continue;
+    }
 
     // Draw the bounding box.
     ctx.strokeStyle = klass_colour;
@@ -155,9 +155,9 @@ export function predict(res, c) {
     const klass = names[classes_data[i]].name;
     const score = scores_data[i].toFixed(2);
 
-    // if (score < 0.80){
-    //   continue;
-    // }
+    if (score < 0.50){
+      continue;
+    }
 
     // Draw the text last to ensure it's on top.
     ctx.fillStyle = "#000000";

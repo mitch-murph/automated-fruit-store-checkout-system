@@ -5,7 +5,9 @@ import { StateMachineProvider, createStore } from "little-state-machine";
 import { Scanner, AboutUs } from './pages'
 import { Navigation } from './components'
 import defaultState from './state/defaultState'
-createStore(defaultState);
+import { cloneDeep } from "lodash";
+
+createStore(cloneDeep(defaultState));
 
 function App() {
   return (

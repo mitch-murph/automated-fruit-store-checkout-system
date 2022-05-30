@@ -6,7 +6,7 @@ export default {
       color: "#0bff00",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 0.80,
     },
     {
       name: "Red Apple",
@@ -30,7 +30,7 @@ export default {
       color: "#fff000",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 0.65,
     },
     {
       name: "Carrot",
@@ -38,7 +38,7 @@ export default {
       color: "#ffce67",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 0.30,
     },
     {
       name: "Canned Soft Drink",
@@ -46,7 +46,7 @@ export default {
       color: "#9e0f05",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 3,
     },
     {
       name: "Beans",
@@ -54,7 +54,7 @@ export default {
       color: "#099065",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 3.20,
     },
     {
       name: "Potato",
@@ -62,7 +62,7 @@ export default {
       color: "#e4dfa4",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 0.75,
     },
     {
       name: "Chocolate",
@@ -70,7 +70,7 @@ export default {
       color: "#4e33c0",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 4,
     },
     {
       name: "Cereal",
@@ -78,7 +78,7 @@ export default {
       color: "#d8c909",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 8,
     },
     {
       name: "Vegemite",
@@ -86,7 +86,7 @@ export default {
       color: "#000000",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 7,
     },
     {
       name: "Instant Coffee",
@@ -94,8 +94,8 @@ export default {
       color: "#442b00",
       attributes: [],
       units: 0,
-      price: 1,
+      price: 11,
     },
   ],
   total: 0,
-};
+}
